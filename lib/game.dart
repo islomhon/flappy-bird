@@ -18,55 +18,65 @@ class FlappyBird extends FlameGame with TapDetector, HasCollisionDetection {
   late Ground ground;
   late PipeManager pipeManager;
   late ScoreText scoreText;
-  //LOAD
 
   @override
   FutureOr<void> onLoad() {
-    //load backround image
+    // Orqa fonni yuklash
     background = Background(size);
-    add(Background(size));
-    // load bird
+    add(background);
+
+    // Qushni yuklash
     bird = Bird();
     add(bird);
-    //load ground
+
+    // Yerning texturasini yuklash
     ground = Ground();
     add(ground);
-    //load pipes
+
+    // Trubalarni boshqarish
     pipeManager = PipeManager();
     add(pipeManager);
-    //load scores
+
+    // Hisob
     scoreText = ScoreText();
     add(scoreText);
   }
 
-  //TAP
+  @override
+  void update(double dt) {
+    super.update(dt);
+    
+    // Qush ekranning yuqori qismiga tegsa ham o‘yin tugaydi
+    if (bird.position.y <= 0) {
+      gameOver();
+    }
+  }
+
   @override
   void onTap() {
     bird.flap();
   }
 
-  //SCORE
-
   int score = 0;
-
   void incrementScore() {
     score += 1;
   }
 
-  //GAME OVER
+  // O'YIN TUGADI
   bool isGameOver = false;
   void gameOver() {
     if (isGameOver) return;
     isGameOver = true;
     pauseEngine();
-    // Show Game Over Dialog
+    
+    // Game Over Dialog
     showDialog(
       barrierDismissible: false,
       context: buildContext!,
       builder: (context) => CupertinoAlertDialog(
-        title: Text('GameOver'),
+        title: Text('Game Over'),
         content: Text(
-          'score: ${score}',
+          'Score: $score',
           style: TextStyle(fontSize: 15),
         ),
         actions: [

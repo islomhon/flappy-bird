@@ -29,4 +29,5 @@ class ScoreText extends TextComponent with HasGameRef<FlappyBird> {
     }
   }
 
+  
 }
