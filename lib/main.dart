@@ -43,10 +43,12 @@ class _StartScreenState extends State<StartScreen> {
               CupertinoDialogAction(
                 onPressed: () {
                   pipeGap = 300;
+                  piepInterval = 2.2;
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => GameWidget(game: FlappyBird(birdImage: selectedBirdImage)),
+                      builder: (context) => GameWidget(
+                          game: FlappyBird(birdImage: selectedBirdImage)),
                     ),
                   );
                 },
@@ -55,10 +57,12 @@ class _StartScreenState extends State<StartScreen> {
               CupertinoDialogAction(
                 onPressed: () {
                   pipeGap = 250;
+                  piepInterval = 2;
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => GameWidget(game: FlappyBird(birdImage: selectedBirdImage)),
+                      builder: (context) => GameWidget(
+                          game: FlappyBird(birdImage: selectedBirdImage)),
                     ),
                   );
                 },
@@ -67,23 +71,29 @@ class _StartScreenState extends State<StartScreen> {
               CupertinoDialogAction(
                 onPressed: () {
                   pipeGap = 200;
+                  piepInterval = 1;
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => GameWidget(game: FlappyBird(birdImage: selectedBirdImage)),
+                      builder: (context) => GameWidget(
+                          game: FlappyBird(birdImage: selectedBirdImage)),
                     ),
                   );
                 },
                 child: Text('Hard'),
               ),
               CupertinoDialogAction(
-                onPressed: pickBirdImage,
+                onPressed: () async {
+                  await pickBirdImage();
+                  Navigator.pop(context);
+                },
                 child: Text("Select Bird Image"),
               ),
               if (selectedBirdImage != null)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Image.file(selectedBirdImage!, width: 100, height: 100),
+                  child:
+                      Image.file(selectedBirdImage!, width: 100, height: 100),
                 ),
             ],
           ),
@@ -93,7 +103,8 @@ class _StartScreenState extends State<StartScreen> {
   }
 
   Future<void> pickBirdImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         selectedBirdImage = File(pickedFile.path);
@@ -101,69 +112,75 @@ class _StartScreenState extends State<StartScreen> {
     }
   }
 
- 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/bakc.png'),
-            fit: BoxFit.cover,
+      body: SafeArea(
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                'assets/images/bakc.png',
+              ),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: IconButton(
-                  onPressed: () {
-                    showLevelDialog(context);
-                  },
-                  icon: Icon(
-                    Icons.settings,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-              ),
-              Container(
-                width: double.infinity,
-                height: 120,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/name.png'),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 100),
-                child: Column(
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GameWidget(game: FlappyBird(birdImage: selectedBirdImage)),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                        textStyle: TextStyle(fontSize: 30),
-                      ),
-                      child: Text('Start'),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: IconButton(
+                    onPressed: () {
+                      showLevelDialog(context);
+                    },
+                    icon: Icon(
+                      Icons.settings,
+                      color: Colors.white,
+                      size: 30,
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                Container(
+                  width: double.infinity,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/name.png'),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 100),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GameWidget(
+                                  game:
+                                      FlappyBird(birdImage: selectedBirdImage)),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 20),
+                          textStyle: TextStyle(fontSize: 30),
+                        ),
+                        child: Text('Start'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

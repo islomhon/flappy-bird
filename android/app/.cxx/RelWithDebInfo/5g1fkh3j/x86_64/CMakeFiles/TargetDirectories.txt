@@ -1,0 +1,2 @@
+C:/projects/flappy-bird/android/app/.cxx/RelWithDebInfo/5g1fkh3j/x86_64/CMakeFiles/edit_cache.dir
+C:/projects/flappy-bird/android/app/.cxx/RelWithDebInfo/5g1fkh3j/x86_64/CMakeFiles/rebuild_cache.dir

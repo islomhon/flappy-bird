@@ -110,7 +110,7 @@ class FlappyBird extends FlameGame with TapDetector, HasCollisionDetection {
   void resetGame() {
     score = 0;
     bird.removeFromParent();
-    bird = Bird(birdImage: birdImage); // Tanlangan rasm bilan qayta yaratish
+    bird = Bird(birdImage: birdImage); 
     add(bird);
     bird.position = Vector2(birdStartX, birdStartY);
     bird.velocity = 0;
