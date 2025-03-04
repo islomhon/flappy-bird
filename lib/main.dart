@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flappy_bird/constans.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flappy_bird/game.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,8 +23,13 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class StartScreen extends StatelessWidget {
-  final String selectedLevel = 'easy';
+class StartScreen extends StatefulWidget {
+  @override
+  _StartScreenState createState() => _StartScreenState();
+}
+
+class _StartScreenState extends State<StartScreen> {
+  File? selectedBirdImage;
 
   void showLevelDialog(BuildContext context) {
     showDialog<String>(
@@ -38,7 +46,7 @@ class StartScreen extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => GameWidget(game: FlappyBird()),
+                      builder: (context) => GameWidget(game: FlappyBird(birdImage: selectedBirdImage)),
                     ),
                   );
                 },
@@ -50,7 +58,7 @@ class StartScreen extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => GameWidget(game: FlappyBird()),
+                      builder: (context) => GameWidget(game: FlappyBird(birdImage: selectedBirdImage)),
                     ),
                   );
                 },
@@ -62,12 +70,21 @@ class StartScreen extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => GameWidget(game: FlappyBird()),
+                      builder: (context) => GameWidget(game: FlappyBird(birdImage: selectedBirdImage)),
                     ),
                   );
                 },
                 child: Text('Hard'),
               ),
+              CupertinoDialogAction(
+                onPressed: pickBirdImage,
+                child: Text("Select Bird Image"),
+              ),
+              if (selectedBirdImage != null)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.file(selectedBirdImage!, width: 100, height: 100),
+                ),
             ],
           ),
         );
@@ -75,6 +92,16 @@ class StartScreen extends StatelessWidget {
     );
   }
 
+  Future<void> pickBirdImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        selectedBirdImage = File(pickedFile.path);
+      });
+    }
+  }
+
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,9 +109,11 @@ class StartScreen extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage('assets/images/bakc.png'),
-                fit: BoxFit.cover)),
+          image: DecorationImage(
+            image: AssetImage('assets/images/bakc.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Column(
@@ -93,21 +122,24 @@ class StartScreen extends StatelessWidget {
               Align(
                 alignment: Alignment.topLeft,
                 child: IconButton(
-                    onPressed: () {
-                      showLevelDialog(context);
-                    },
-                    icon: Icon(
-                      Icons.settings,
-                      color: Colors.white,
-                      size: 30,
-                    )),
+                  onPressed: () {
+                    showLevelDialog(context);
+                  },
+                  icon: Icon(
+                    Icons.settings,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                ),
               ),
               Container(
                 width: double.infinity,
                 height: 120,
                 decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage('assets/images/name.png'))),
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/name.png'),
+                  ),
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 100),
@@ -118,14 +150,12 @@ class StartScreen extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                GameWidget(game: FlappyBird()),
+                            builder: (context) => GameWidget(game: FlappyBird(birdImage: selectedBirdImage)),
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                         textStyle: TextStyle(fontSize: 30),
                       ),
                       child: Text('Start'),

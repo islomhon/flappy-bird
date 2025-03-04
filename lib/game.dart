@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flappy_bird/components/background.dart';
@@ -18,6 +19,9 @@ class FlappyBird extends FlameGame with TapDetector, HasCollisionDetection {
   late Ground ground;
   late PipeManager pipeManager;
   late ScoreText scoreText;
+  final File? birdImage;
+
+  FlappyBird({this.birdImage});
 
   @override
   FutureOr<void> onLoad() {
@@ -25,8 +29,8 @@ class FlappyBird extends FlameGame with TapDetector, HasCollisionDetection {
     background = Background(size);
     add(background);
 
-    // Qushni yuklash
-    bird = Bird();
+    // Qushni yuklash (tanlangan rasm bilan)
+    bird = Bird(birdImage: birdImage);
     add(bird);
 
     // Yerning texturasini yuklash
@@ -105,6 +109,9 @@ class FlappyBird extends FlameGame with TapDetector, HasCollisionDetection {
 
   void resetGame() {
     score = 0;
+    bird.removeFromParent();
+    bird = Bird(birdImage: birdImage); // Tanlangan rasm bilan qayta yaratish
+    add(bird);
     bird.position = Vector2(birdStartX, birdStartY);
     bird.velocity = 0;
     isGameOver = false;
