@@ -12,6 +12,7 @@ import 'package:flappy_bird/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flappy_bird/components/pipe.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FlappyBird extends FlameGame with TapDetector, HasCollisionDetection {
   late Bird bird;
@@ -20,40 +21,45 @@ class FlappyBird extends FlameGame with TapDetector, HasCollisionDetection {
   late PipeManager pipeManager;
   late ScoreText scoreText;
   final File? birdImage;
+  bool backgroundChanged = false; 
+  int score = 0;
+  int highScore = 0;
+  bool isGameOver = false;
 
   FlappyBird({this.birdImage});
 
   @override
-  FutureOr<void> onLoad() {
-    // Orqa fonni yuklash
+  FutureOr<void> onLoad() async {
     background = Background(size);
     add(background);
 
-    // Qushni yuklash (tanlangan rasm bilan)
     bird = Bird(birdImage: birdImage);
     add(bird);
 
-    // Yerning texturasini yuklash
     ground = Ground();
     add(ground);
 
-    // Trubalarni boshqarish
     pipeManager = PipeManager();
     add(pipeManager);
 
-    // Hisob
     scoreText = ScoreText();
     add(scoreText);
+
+    await loadHighScore();
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    
-    // Qush ekranning yuqori qismiga tegsa ham o‘yin tugaydi
     if (bird.position.y <= 0) {
       gameOver();
     }
+
+    // Har 50 ta score yig‘ilganda fonni o‘zgartirish
+      if (score >= 50 && !backgroundChanged) {
+    background.changeBackground();
+    backgroundChanged = true;
+  }
   }
 
   @override
@@ -61,26 +67,26 @@ class FlappyBird extends FlameGame with TapDetector, HasCollisionDetection {
     bird.flap();
   }
 
-  int score = 0;
   void incrementScore() {
     score += 1;
+    if (score > highScore) {
+      highScore = score;
+      saveHighScore();
+    }
   }
 
-  // O'YIN TUGADI
-  bool isGameOver = false;
   void gameOver() {
     if (isGameOver) return;
     isGameOver = true;
     pauseEngine();
-    
-    // Game Over Dialog
+
     showDialog(
       barrierDismissible: false,
       context: buildContext!,
       builder: (context) => CupertinoAlertDialog(
         title: Text('Game Over'),
         content: Text(
-          'Score: $score',
+          'Score: $score\nHigh Score: $highScore',
           style: TextStyle(fontSize: 15),
         ),
         actions: [
@@ -96,7 +102,7 @@ class FlappyBird extends FlameGame with TapDetector, HasCollisionDetection {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => StartScreen(),
+                  builder: (context) => StartScreen(highScore: highScore),
                 ),
               );
             },
@@ -110,12 +116,23 @@ class FlappyBird extends FlameGame with TapDetector, HasCollisionDetection {
   void resetGame() {
     score = 0;
     bird.removeFromParent();
-    bird = Bird(birdImage: birdImage); 
+    bird = Bird(birdImage: birdImage);
     add(bird);
     bird.position = Vector2(birdStartX, birdStartY);
     bird.velocity = 0;
     isGameOver = false;
     children.whereType<Pipe>().forEach((pipe) => pipe.removeFromParent());
+
     resumeEngine();
+  }
+
+  Future<void> saveHighScore() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('highScore', highScore);
+  }
+
+  Future<void> loadHighScore() async {
+    final prefs = await SharedPreferences.getInstance();
+    highScore = prefs.getInt('highScore') ?? 0;
   }
 }

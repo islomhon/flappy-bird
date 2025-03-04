@@ -6,24 +6,47 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:flappy_bird/game.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  int highScore = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    loadHighScore();
+  }
+
+  Future<void> loadHighScore() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      highScore = prefs.getInt('highScore') ?? 0;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: StartScreen(),
+      home: StartScreen(highScore: highScore),
     );
   }
 }
 
 class StartScreen extends StatefulWidget {
+  final int highScore;
+  StartScreen({required this.highScore});
   @override
   _StartScreenState createState() => _StartScreenState();
 }
@@ -102,6 +125,37 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
+  void showInformationDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CupertinoAlertDialog(
+            title: Text('Information'),
+            content: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('High score:'),
+                    Text(
+                      ' ${widget.highScore}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('OK'))
+            ],
+          );
+        });
+  }
+
   Future<void> pickBirdImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -134,15 +188,29 @@ class _StartScreenState extends State<StartScreen> {
               children: [
                 Align(
                   alignment: Alignment.topLeft,
-                  child: IconButton(
-                    onPressed: () {
-                      showLevelDialog(context);
-                    },
-                    icon: Icon(
-                      Icons.settings,
-                      color: Colors.white,
-                      size: 30,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          showLevelDialog(context);
+                        },
+                        icon: Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            showInformationDialog();
+                          },
+                          icon: Icon(
+                            CupertinoIcons.info,
+                            color: Colors.white,
+                            size: 30,
+                          )),
+                    ],
                   ),
                 ),
                 Container(
@@ -155,11 +223,11 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 100),
+                  padding: const EdgeInsets.only(bottom: 70),
                   child: Column(
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
+                      InkWell(
+                        onTap: () {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -169,12 +237,23 @@ class _StartScreenState extends State<StartScreen> {
                             ),
                           );
                         },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 20),
-                          textStyle: TextStyle(fontSize: 30),
-                        ),
-                        child: Text('Start'),
+                        child: Container(
+                            width: 120,
+                            child: Center(
+                              child: Text(
+                                'Start',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            )),
                       ),
                     ],
                   ),
